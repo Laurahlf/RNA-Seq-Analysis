@@ -1,0 +1,56 @@
+# RNA-seq analysis
+
+# Quality control: fastqc 
+
+
+  #!/bin/bash
+  #PBS -lwalltime=08:00:00
+  #PBS -lselect=1:ncpus=8:mem=16gb
+
+  # Load fastqc v0.11.9
+  module load FastQC/0.11.9-Java-11
+
+  # Define project directory
+  projPath="/rds/general/project/diantonio/live/Laura"
+  qcDir="${projPath}/fastqc"
+
+  # Create output directory
+  mkdir -p ${qcDir}
+
+  # Run FastQC on all fq.gz files found in the sample subfolders
+  fastqc ${projPath}/*/*.fq.gz \
+      --outdir ${qcDir} \
+      --threads 8
+
+
+# Alignment: STAR
+
+  #!/bin/bash
+  #PBS -lwalltime=08:00:00
+  #PBS -lselect=1:ncpus=16:mem=64gb
+
+  # Load STAR v2.7.10b
+  module load STAR/2.7.10b-GCC-11.3.0
+
+  # Define project and output directories
+  projPath="/rds/general/project/diantonio/live/Laura"
+  outDir="${projPath}/star_out"
+
+  mkdir -p ${outDir}
+
+  # Loop through all samples
+  for name in Sample1 Sample 2
+  do
+      r1=$(ls ${projPath}/${name}/*_1.fq.gz)
+      r2=$(ls ${projPath}/${name}/*_2.fq.gz)
+
+  # Align to hg38 references genome
+      STAR --runThreadN 16 \
+          --genomeDir /rds/general/project/diantonio/live/tools/star149 \
+          --sjdbGTFfile /rds/general/project/diantonio/live/tools/genomes/hg38_ucsc/hg38.refGene.gtf \
+          --sjdbOverhang 149 \
+          --outFileNamePrefix ${outDir}/${name}_ \
+          --readFilesCommand gunzip -c \
+          --readFilesIn ${r1} ${r2} \
+          --outSAMtype BAM SortedByCoordinate
+  done
