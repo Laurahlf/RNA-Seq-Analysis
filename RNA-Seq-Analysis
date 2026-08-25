@@ -44,7 +44,7 @@
       r1=$(ls ${projPath}/${name}/*_1.fq.gz)
       r2=$(ls ${projPath}/${name}/*_2.fq.gz)
 
-  # Align to hg38 references genome
+  # Align to hg38 reference genome
       STAR --runThreadN 16 \
           --genomeDir /rds/general/project/diantonio/live/tools/star149 \
           --sjdbGTFfile /rds/general/project/diantonio/live/tools/genomes/hg38_ucsc/hg38.refGene.gtf \
